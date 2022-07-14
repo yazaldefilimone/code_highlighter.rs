@@ -10,5 +10,12 @@ fn main() {
       return false;
     }
   }";
+  println!("Error:");
   println!("{}", highlight_error::highlight_error(38, 64, &code));
+  println!("");
+
+  let code = "(Foo x) = 7[0 ]\n";
+  println!("Error:");
+  println!("{}", highlight_error::highlight_error(16, 17, &code));
+  println!("");
 }

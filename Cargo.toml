@@ -1,6 +1,6 @@
 [package]
 name = "highlight_error"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Highlights an error for printing"
 repository = "https://github.com/VictorTaelin/rust_highlight_error"
