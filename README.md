@@ -1,7 +1,14 @@
-#![allow(dead_code)]
+Highlight Error
+===============
 
-mod highlight_error;
+Rust util that highlights an error.
 
+Example
+-------
+
+The code below:
+
+```rust
 fn main() {
   let code = "functon is_zero (x) {
     if (x == 0) [
@@ -12,3 +19,8 @@ fn main() {
   }";
   println!("{}", highlight_error::highlight_error(38, 64, &code));
 }
+```
+
+Will output:
+
+![example.png](example)
