@@ -23,4 +23,4 @@ fn main() {
 
 Will output:
 
-![example.png](example)
+![example](./example.png)
