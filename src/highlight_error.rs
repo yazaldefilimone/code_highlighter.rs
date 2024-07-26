@@ -1,5 +1,15 @@
 /// Given a complete source file, highlights an error between two indexes (in bytes).
 pub fn highlight_error(ini_idx: usize, end_idx: usize, file: &str) -> String {
+  return highlight(ini_idx, end_idx, file, "\x1b[4m\x1b[31m");
+}
+
+/// Given a complete source file, highlights a warning between two indexes (in bytes).
+pub fn highlight_warning(ini_idx: usize, end_idx: usize, file: &str) -> String {
+  return highlight(ini_idx, end_idx, file, "\x1b[4m\x1b[33m");
+}
+
+/// Common highlight function, given a complete source file, highlights an error between two indexes (in bytes) with a custom color (ANSI escape codes).
+pub fn highlight(ini_idx: usize, end_idx: usize, file: &str, color: &str) -> String {
   // Please do NOT "improve" this by using high-order functions
 
   // Appends empty spaces to the left of a text
@@ -12,8 +22,8 @@ pub fn highlight_error(ini_idx: usize, end_idx: usize, file: &str) -> String {
 
   // Appends empty spaces until end_idx <= file.len()
   // This is done this way to avoid allocating a new string
-  let text : &str;
-  let buff : String;
+  let text: &str;
+  let buff: String;
   if end_idx <= file.len() {
     text = file;
   } else {
@@ -21,8 +31,6 @@ pub fn highlight_error(ini_idx: usize, end_idx: usize, file: &str) -> String {
     text = &buff;
   };
 
-  // Terminal colors
-  let color = "\x1b[4m\x1b[31m";
   let reset = "\x1b[0m";
 
   // Calculates indices and line numbers
@@ -50,7 +58,7 @@ pub fn highlight_error(ini_idx: usize, end_idx: usize, file: &str) -> String {
     idx += chr.len_utf8();
   }
   let num_len = format!("{}", cur_lin_idx + 1).len();
-  let slice   = &text[slc_lin_idx .. slc_end_idx];
+  let slice = &text[slc_lin_idx..slc_end_idx];
   let ini_idx = ini_idx - slc_lin_idx;
   let end_idx = end_idx - slc_lin_idx;
 

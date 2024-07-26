@@ -14,8 +14,16 @@ fn main() {
   println!("{}", highlight_error::highlight_error(38, 64, &code));
   println!("");
 
+  println!("Warning:");
+  println!("{}", highlight_error::highlight_warning(38, 64, &code));
+  println!("");
+
+  println!("Custom color:");
+  println!("{}",highlight_error::highlight(38, 64, &code, "\x1b[4m\x1b[32m"));
+  println!("");
+
   let code = "(Foo x) = 7[0 ]\n";
-  println!("Error:");
+  println!("Warning:");
   println!("{}", highlight_error::highlight_error(16, 17, &code));
   println!("");
 }
