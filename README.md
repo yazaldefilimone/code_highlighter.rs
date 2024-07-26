@@ -1,8 +1,8 @@
-<samp
+<samp>
 
 Rust util that highlights an error.
 
-## Example
+Example
 
 The code below:
 
