@@ -6,6 +6,6 @@ description = "Highlights code for printing"
 repository = "https://github.com/yazaldefilimone/code_highlighter.rs"
 license = "MIT"
 keywords = ["console", "terminal", "error"]
-categories = ["utils"]
+categories = ["compilers", "text-processing"]
 
 [dependencies]
