@@ -1,10 +1,8 @@
-Highlight Error
-===============
+<samp
 
 Rust util that highlights an error.
 
-Example
--------
+## Example
 
 The code below:
 
@@ -24,3 +22,5 @@ fn main() {
 Will output:
 
 ![example](./example.png)
+
+A fork of [highlight_error](https://github.com/VictorTaelin/rust_highlight_error) 🥺

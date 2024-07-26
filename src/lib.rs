@@ -1,3 +1,3 @@
-mod highlight_error;
+mod code_highlighter;
 
-pub use highlight_error::{*};
+pub use code_highlighter::*;

@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "highlight_error"
+name = "code_highlighter"
 version = "0.1.1"

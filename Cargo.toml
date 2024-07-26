@@ -1,9 +1,9 @@
 [package]
-name = "highlight_error"
+name = "code_highlighter"
 version = "0.1.1"
 edition = "2021"
-description = "Highlights an error for printing"
-repository = "https://github.com/VictorTaelin/rust_highlight_error"
+description = "Highlights code for printing"
+repository = "https://github.com/yazaldefilimone/code_highlighter.rs"
 license = "MIT"
 keywords = ["console", "terminal", "error"]
 categories = ["utils"]

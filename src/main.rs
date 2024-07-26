@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-mod highlight_error;
+mod code_highlighter;
 
 fn main() {
   let code = "functon is_zero (x) {
@@ -11,19 +11,19 @@ fn main() {
     }
   }";
   println!("Error:");
-  println!("{}", highlight_error::highlight_error(38, 64, &code));
+  println!("{}", code_highlighter::highlight_error(38, 64, &code));
   println!("");
 
   println!("Warning:");
-  println!("{}", highlight_error::highlight_warning(38, 64, &code));
+  println!("{}", code_highlighter::highlight_warning(38, 64, &code));
   println!("");
 
   println!("Custom color:");
-  println!("{}",highlight_error::highlight(38, 64, &code, "\x1b[4m\x1b[32m"));
+  println!("{}", code_highlighter::highlight(38, 64, &code, "\x1b[4m\x1b[32m"));
   println!("");
 
   let code = "(Foo x) = 7[0 ]\n";
   println!("Warning:");
-  println!("{}", highlight_error::highlight_error(16, 17, &code));
+  println!("{}", code_highlighter::highlight_error(16, 17, &code));
   println!("");
 }
