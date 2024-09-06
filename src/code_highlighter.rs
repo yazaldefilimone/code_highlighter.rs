@@ -1,103 +1,126 @@
-/// Given a complete source file, highlights an error between two indexes (in bytes).
+#[derive(Debug, Clone, Copy, Default)]
+pub struct LineInfo {
+  number: usize,
+  start_index: usize,
+  end_index: usize,
+}
+
 pub fn highlight_error(ini_idx: usize, end_idx: usize, file: &str) -> String {
-  return highlight(ini_idx, end_idx, file, "\x1b[4m\x1b[31m");
+  highlight(ini_idx, end_idx, file, "\x1b[4m\x1b[31m")
 }
 
-/// Given a complete source file, highlights a warning between two indexes (in bytes).
 pub fn highlight_warning(ini_idx: usize, end_idx: usize, file: &str) -> String {
-  return highlight(ini_idx, end_idx, file, "\x1b[4m\x1b[33m");
+  highlight(ini_idx, end_idx, file, "\x1b[4m\x1b[33m")
 }
 
-/// Common highlight function, given a complete source file, highlights an error between two indexes (in bytes) with a custom color (ANSI escape codes).
+pub fn highlight_error_with_context(ini_idx: usize, end_idx: usize, file: &str, lines_ctx: usize) -> String {
+  highlight_context(ini_idx, end_idx, file, "\x1b[4m\x1b[31m", lines_ctx)
+}
+
+pub fn highlight_warning_with_context(ini_idx: usize, end_idx: usize, file: &str, lines_ctx: usize) -> String {
+  highlight_context(ini_idx, end_idx, file, "\x1b[4m\x1b[33m", lines_ctx)
+}
+
 pub fn highlight(ini_idx: usize, end_idx: usize, file: &str, color: &str) -> String {
-  // Please do NOT "improve" this by using high-order functions
+  highlight_context(ini_idx, end_idx, file, color, 0)
+}
 
-  // Appends empty spaces to the left of a text
-  fn pad(len: usize, txt: &str) -> String {
-    return format!("{}{}", " ".repeat(std::cmp::max(len - txt.len(), 0)), txt);
-  }
-
-  // Makes sure the end index is lower than the end index
+fn highlight_context(ini_idx: usize, end_idx: usize, file: &str, color: &str, lines_ctx: usize) -> String {
   assert!(ini_idx <= end_idx);
 
-  // Appends empty spaces until end_idx <= file.len()
-  // This is done this way to avoid allocating a new string
-  let text: &str;
-  let buff: String;
-  if end_idx <= file.len() {
-    text = file;
+  let text = if end_idx <= file.len() {
+    file.to_string()
   } else {
-    buff = format!("{}{}", file, " ".repeat(end_idx - file.len()));
-    text = &buff;
+    format!("{}{}", file, " ".repeat(end_idx - file.len()))
   };
 
+  let line_info = get_line_info(&text, ini_idx, end_idx);
+  let context = get_context(&text, &line_info, lines_ctx, lines_ctx);
+  build_highlighted_text(&text, &context, ini_idx, end_idx, color)
+}
+fn get_line_info(text: &str, ini_idx: usize, end_idx: usize) -> Vec<LineInfo> {
+  let mut line_info = Vec::new();
+  let mut current_line = LineInfo { number: 1, start_index: 0, end_index: 0 };
+
+  for (idx, chr) in text.char_indices() {
+    if idx >= ini_idx && line_info.is_empty() {
+      line_info.push(current_line);
+    }
+
+    if chr == '\n' {
+      current_line.end_index = idx;
+      if idx >= ini_idx && idx < end_idx && !line_info.iter().any(|li| li.number == current_line.number) {
+        line_info.push(current_line);
+      }
+      current_line.number += 1;
+      current_line.start_index = idx + 1;
+    }
+
+    if idx >= end_idx {
+      if !line_info.iter().any(|li| li.number == current_line.number) {
+        current_line.end_index = idx;
+        line_info.push(current_line);
+      }
+      break;
+    }
+  }
+
+  if line_info.is_empty() {
+    current_line.end_index = text.len();
+    line_info.push(current_line);
+  }
+
+  line_info
+}
+
+fn get_context(text: &str, line_info: &[LineInfo], lines_ctx: usize, lines_after: usize) -> Vec<LineInfo> {
+  let start_line = line_info.first().unwrap().number;
+  let end_line = line_info.last().unwrap().number;
+
+  let context_start = core::cmp::max(1, start_line.saturating_sub(lines_ctx));
+  let context_end = core::cmp::min(end_line + lines_after, text.lines().count());
+
+  (context_start..=context_end)
+    .map(|line_num| {
+      let start_index = text.lines().take(line_num - 1).map(|l| l.len() + 1).sum();
+      let end_index = start_index + text.lines().nth(line_num - 1).map_or(0, |l| l.len());
+      LineInfo { number: line_num, start_index, end_index }
+    })
+    .collect()
+}
+fn build_highlighted_text(text: &str, context: &[LineInfo], ini_idx: usize, end_idx: usize, color: &str) -> String {
   let reset = "\x1b[0m";
+  let num_len = context.last().unwrap().number.to_string().len();
 
-  // Calculates indices and line numbers
-  let mut cur_lin_idx = 0; // current line index
-  let mut cur_lin_num = 0; // current line number
-  let mut slc_lin_idx = 0; // slice line index
-  let mut slc_lin_num = 0; // slice line number
-  let mut slc_end_idx = 0; // slice end index
-  let mut idx = 0;
-  while idx <= text.len() {
-    let chr = text[idx..].chars().nth(0).unwrap_or('\n');
-    //println!("[{}] | {} {} {} {} {} {} | {}", if chr == '\n' { 'N' } else { chr }, idx, cur_lin_idx, cur_lin_num, slc_lin_idx, slc_lin_num, slc_end_idx, ini_idx);
-    if idx == ini_idx {
-      slc_lin_idx = cur_lin_idx;
-      slc_lin_num = cur_lin_num;
-    }
-    if chr == '\n' {
-      cur_lin_idx = idx + 1;
-      cur_lin_num = cur_lin_num + 1;
-      if idx >= end_idx {
-        slc_end_idx = idx;
-        break;
+  let mut result = String::with_capacity(text.len() * 2);
+  let mut highlighting = false;
+
+  for line in context {
+    let line_content = &text[line.start_index..line.end_index];
+    let line_number = format!("{:>width$}", line.number, width = num_len);
+
+    result.push_str(&format!("{} | ", line_number));
+
+    let mut current_index = line.start_index;
+    for chr in line_content.chars() {
+      if current_index >= ini_idx && current_index < end_idx && !highlighting {
+        result.push_str(color);
+        highlighting = true;
+      } else if current_index >= end_idx && highlighting {
+        result.push_str(reset);
+        highlighting = false;
       }
+      result.push(chr);
+      current_index += chr.len_utf8();
     }
-    idx += chr.len_utf8();
-  }
-  let num_len = format!("{}", cur_lin_idx + 1).len();
-  let slice = &text[slc_lin_idx..slc_end_idx];
-  let ini_idx = ini_idx - slc_lin_idx;
-  let end_idx = end_idx - slc_lin_idx;
 
-  // Builds the display text
-  let mut text = String::new();
-  let mut newl = true;
-  let mut high = false;
-  let mut line = slc_lin_num;
-  let mut idx = 0;
-  while idx < slice.len() {
-    let chr = slice[idx..].chars().nth(0).unwrap_or(' ');
-    if newl {
-      text.push_str(reset);
-      text.push_str(&format!(" {} | ", pad(num_len, &format!("{}", line + 1))));
-      if high {
-        text.push_str(color);
-      }
-      newl = false;
+    if highlighting {
+      result.push_str(reset);
+      highlighting = false;
     }
-    if chr == '\n' {
-      newl = true;
-      line = line + 1;
-    }
-    if idx == ini_idx {
-      high = true;
-      text.push_str(color);
-    }
-    if chr == '\n' && high && end_idx - ini_idx == 1 {
-      text.push(' '); // single "\n" highlight
-    }
-    if idx == end_idx {
-      high = false;
-      text.push_str(reset);
-    }
-    text.push(chr);
-    idx += chr.len_utf8();
-  }
-  text.push_str(reset);
 
-  // Returns it
-  return text;
+    result.push('\n');
+  }
+
+  result
 }

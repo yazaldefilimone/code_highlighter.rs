@@ -11,7 +11,7 @@ fn main() {
     }
   }";
   println!("Error:");
-  println!("{}", code_highlighter::highlight_error(38, 64, &code));
+  println!("{}", code_highlighter::highlight_error_with_context(38, 64, &code, 2));
   println!("");
 
   println!("Warning:");
