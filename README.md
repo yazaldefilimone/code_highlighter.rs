@@ -2,6 +2,10 @@
 
 Rust util that highlights an error.
 
+- `code_highlighter` lets you highlight errors in your code and show extra lines around the error for better context.
+
+
+
 Example
 
 The code below:
@@ -36,4 +40,4 @@ Will output:
 
 ![example](./example.png)
 
-A fork of [highlight_error](https://github.com/VictorTaelin/rust_highlight_error) 🥺
+[how to use](https://github.com/yazaldefilimone/code_highlighter.rs/issues/1#issuecomment-2339225812)
