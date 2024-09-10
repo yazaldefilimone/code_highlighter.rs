@@ -53,9 +53,9 @@ cargo add code_highlighter
 2. `main.rs`
 
 ```rust
-fn main() {
-  use code_highlighter::highlight_error_with_context;
+use code_highlighter::highlight_error_with_context;
 
+fn main() {
   // set the number of lines of context you want to show
   let context = 2; // Adds two lines above and below the error
 
