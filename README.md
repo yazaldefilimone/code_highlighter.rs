@@ -40,4 +40,29 @@ Will output:
 
 ![example](./example.png)
 
-[how to use](https://github.com/yazaldefilimone/code_highlighter.rs/issues/1#issuecomment-2339225812)
+
+## Usage
+
+1. Install using cargo
+
+```shell
+cargo add code_highlighter
+
+```
+
+2. `main.rs`
+
+```rust
+fn main() {
+  use code_highlighter::highlight_error_with_context;
+
+  // set the number of lines of context you want to show
+  let context = 2; // Adds two lines above and below the error
+
+  // assuming `range` has the error position and `source.raw` is your code
+  let code = highlight_error_with_context(range.start, range.end, &source.raw, context);
+
+  // print the highlighted code
+  println!("{}", code);
+}
+```
