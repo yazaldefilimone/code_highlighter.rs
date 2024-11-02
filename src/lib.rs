@@ -1,3 +1,3 @@
-mod code_highlighter;
+mod dunh;
 
-pub use code_highlighter::*;
+pub use dunh::*;
